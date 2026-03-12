@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Daily Coding Routine Planner</title>
+
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Segoe UI;
+}
+
+body{
+height:100vh;
+background:linear-gradient(135deg,#4facfe,#00f2fe);
+display:flex;
+justify-content:center;
+align-items:center;
+transition:0.4s;
+}
+
+body.dark{
+background:linear-gradient(135deg,#141e30,#243b55);
+color:white;
+}
+
+.container{
+width:800px;
+background:white;
+padding:30px;
+border-radius:15px;
+box-shadow:0 15px 35px rgba(0,0,0,0.2);
+transition:0.4s;
+}
+
+body.dark .container{
+background:#1e1e2f;
+}
+
+h1{
+text-align:center;
+margin-bottom:20px;
+}
+
+.theme-btn{
+float:right;
+margin-bottom:10px;
+background:#333;
+}
+
+.section{
+margin-bottom:25px;
+}
+
+.section h2{
+margin-bottom:10px;
+}
+
+.input-area{
+display:flex;
+gap:10px;
+margin-bottom:10px;
+}
+
+input{
+flex:1;
+padding:10px;
+border-radius:8px;
+border:1px solid #ccc;
+}
+
+body.dark input{
+background:#333;
+color:white;
+border:1px solid #555;
+}
+
+button{
+padding:10px 15px;
+border:none;
+border-radius:8px;
+background:#4facfe;
+color:white;
+cursor:pointer;
+transition:0.3s;
+}
+
+button:hover{
+background:#007bff;
+transform:scale(1.05);
+}
+
+ul{
+list-style:none;
+}
+
+li{
+background:#f7f7f7;
+padding:10px;
+margin-bottom:8px;
+border-radius:8px;
+display:flex;
+align-items:center;
+justify-content:space-between;
+transition:0.3s;
+}
+
+li:hover{
+background:#e8f3ff;
+transform:translateX(5px);
+}
+
+body.dark li{
+background:#2b2b40;
+}
+
+body.dark li:hover{
+background:#3b3b55;
+}
+
+.task{
+display:flex;
+align-items:center;
+gap:10px;
+}
+
+.completed{
+text-decoration:line-through;
+color:gray;
+}
+
+.delete{
+background:#ff4d4d;
+padding:5px 10px;
+border-radius:6px;
+}
+
+.delete:hover{
+background:#e60000;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<button class="theme-btn" onclick="toggleTheme()">🌙 Night Mode</button>
+
+<h1>💻 Daily Coding Routine Planner</h1>
+
+<div class="section">
+<h2>🌅 Morning</h2>
+
+<div class="input-area">
+<input id="morningInput" placeholder="Add morning task">
+<button onclick="addTask('morning')">Add</button>
+</div>
+
+<ul id="morningList"></ul>
+</div>
+
+<div class="section">
+<h2>☀ Afternoon</h2>
+
+<div class="input-area">
+<input id="afternoonInput" placeholder="Add afternoon task">
+<button onclick="addTask('afternoon')">Add</button>
+</div>
+
+<ul id="afternoonList"></ul>
+</div>
+
+<div class="section">
+<h2>🌙 Evening</h2>
+
+<div class="input-area">
+<input id="eveningInput" placeholder="Add evening task">
+<button onclick="addTask('evening')">Add</button>
+</div>
+
+<ul id="eveningList"></ul>
+</div>
+
+</div>
+
+<script>
+
+let tasks = JSON.parse(localStorage.getItem("routineTasks")) || {
+morning:[],
+afternoon:[],
+evening:[]
+};
+
+function saveTasks(){
+localStorage.setItem("routineTasks",JSON.stringify(tasks));
+}
+
+function renderTasks(){
+
+["morning","afternoon","evening"].forEach(section=>{
+
+let list=document.getElementById(section+"List");
+list.innerHTML="";
+
+tasks[section].forEach((task,index)=>{
+
+let li=document.createElement("li");
+
+li.innerHTML=`
+<div class="task">
+<input type="checkbox" ${task.done ? "checked":""} onclick="toggleTask('${section}',${index})">
+<span class="${task.done ? "completed":""}">${task.text}</span>
+</div>
+
+<button class="delete" onclick="deleteTask('${section}',${index})">Delete</button>
+`;
+
+list.appendChild(li);
+
+});
+
+});
+
+}
+
+function addTask(section){
+
+let input=document.getElementById(section+"Input");
+let text=input.value.trim();
+
+if(text==="") return;
+
+tasks[section].push({text:text,done:false});
+
+input.value="";
+
+saveTasks();
+renderTasks();
+
+}
+
+function toggleTask(section,index){
+
+tasks[section][index].done=!tasks[section][index].done;
+
+saveTasks();
+renderTasks();
+
+}
+
+function deleteTask(section,index){
+
+tasks[section].splice(index,1);
+
+saveTasks();
+renderTasks();
+
+}
+
+function toggleTheme(){
+
+document.body.classList.toggle("dark");
+
+localStorage.setItem("theme",
+document.body.classList.contains("dark") ? "dark":"light");
+
+}
+
+if(localStorage.getItem("theme")==="dark"){
+document.body.classList.add("dark");
+}
+
+renderTasks();
+
+</script>
+
+</body>
+</html>
